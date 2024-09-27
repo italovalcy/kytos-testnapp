@@ -30,7 +30,7 @@ class Main(KytosNApp):
     def handle_get(self, request: Request) -> JSONResponse:
         """Endpoint to return nothing."""
         log.info('GET /v1/testnapp')
-        return JSONResponse({})
+        return JSONResponse({"result": "Napp is running!"})
 
     @rest("/v1/", methods=["POST"])
     def handle_post(self, request: Request) -> JSONResponse:
