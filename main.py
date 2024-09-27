@@ -1,7 +1,7 @@
 """Main module of italovalcy/testnapp Kytos Network Application.
 """
 
-from flask import jsonify, request
+from kytos.core.rest_api import HTTPException, JSONResponse, Request, get_json_or_400
 from kytos.core import KytosNApp, log, rest
 from kytos.core import KytosEvent
 from kytos.core.helpers import listen_to
@@ -27,26 +27,25 @@ class Main(KytosNApp):
         log.info('SHUTDOWN testnapp')
 
     @rest('/v1/', methods=['GET'])
-    def handle_get(self):
-        """Endpoint to return nothing.
-        """
+    def handle_get(self, request: Request) -> JSONResponse:
+        """Endpoint to return nothing."""
         log.info('GET /v1/testnapp')
-        return jsonify({}), 200
+        return JSONResponse({})
+
+    @rest("/v1/", methods=["POST"])
+    def handle_post(self, request: Request) -> JSONResponse:
+        """Endpoint to return nothing."""
+        data = get_json_or_400(request, self.controller.loop)
+        if not data:
+            raise HTTPException(400, f"Empty request: {data}")
+        return JSONResponse("Operation successful", status_code=201)
 
     @listen_to('.*.switch.(new|reconnected)')
     def handle_new_switch(self, event):
-        """ Handle the event of a new created switch
-        """
+        """Handle the event of a new created switch"""
         log.info(f'handle_new_switch event={event} content={event.content}')
 
     @listen_to('.*.connection.lost')
     def handle_switch_conn_lost(self, event):
-        """ Handle the event of switch's connection lost
-        """
+        """Handle the event of switch's connection lost"""
         log.info(f'handle_switch_conn_lost event={event} content={event.content}')
-
-    @listen_to('.*.switch.interface.created')
-    def handle_interface_created(self, event):
-        """ Handle the event of a interface created
-        """
-        log.info(f'handle_interface_created event={event} content={event.content}')
